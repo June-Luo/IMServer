@@ -2,9 +2,9 @@
 
 ## 整体架构
 
+
+
 ![IM系统](https://android-1313021454.cos.ap-nanjing.myqcloud.com/IM/IM%E7%B3%BB%E7%BB%9F.png)
-
-
 
 ## 软件
 
