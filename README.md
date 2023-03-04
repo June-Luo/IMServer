@@ -2,7 +2,7 @@
 
 ## 整体架构
 
-![IM系统](http://laibaijiang.com/IM/IM%E7%B3%BB%E7%BB%9F.png)
+![IM系统](https://raw.githubusercontent.com/baijiangLai/IM/master/images/IM%E7%B3%BB%E7%BB%9F.png)
 
 ## 软件
 
