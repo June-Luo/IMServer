@@ -2,18 +2,14 @@ package com.mengxiang.im.push.bean.db;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * 用户关系的model
  * 用于用户直接进行好友关系的实现
- *
+ * <p>
  * 用户和用户之间通过一个中间表进行联系
  */
 @Entity
@@ -29,7 +25,7 @@ public class UserFollow {
     //把uuid的生成器定义为uuid2，uuid2是常规的UUID toString
     @GenericGenerator(name = "uuid", strategy = "uuid2")
     //不允许更改，不允许为null
-    @Column(updatable =  false, nullable = false)
+    @Column(updatable = false, nullable = false)
     private String id;
 
     //关注的发起人(一个人关注多个人)
@@ -67,25 +63,6 @@ public class UserFollow {
     @CreationTimestamp
     @Column(nullable = false)
     private LocalDateTime udateAt = LocalDateTime.now();
-
-
-    //关注的人列表
-    //对应数据库表字段为UserFollow.originId
-    @JoinColumn(name = "originId")
-    //定义为懒加载，默认加载User信息的时候，并不查询这个集合
-    @LazyCollection(LazyCollectionOption.EXTRA)
-    //一对多，一个用户可以有很多关主任
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<UserFollow> myFollowUser = new HashSet<>();
-
-
-    //关注我的人
-    @JoinColumn(name = "targetId")
-    //定义为懒加载，默认加载User信息的时候，并不查询这个集合
-    @LazyCollection(LazyCollectionOption.EXTRA)
-    //一对多，一个用户可以被很多人关注
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<UserFollow> followers = new HashSet<>();
 
 
     public String getId() {
@@ -152,19 +129,4 @@ public class UserFollow {
         this.udateAt = udateAt;
     }
 
-    public Set<UserFollow> getMyFollowUser() {
-        return myFollowUser;
-    }
-
-    public void setMyFollowUser(Set<UserFollow> myFollowUser) {
-        this.myFollowUser = myFollowUser;
-    }
-
-    public Set<UserFollow> getFollowers() {
-        return followers;
-    }
-
-    public void setFollowers(Set<UserFollow> followers) {
-        this.followers = followers;
-    }
 }

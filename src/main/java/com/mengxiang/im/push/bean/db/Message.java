@@ -48,7 +48,7 @@ public class Message {
     private User sender;
 
     //该字段为了对应sender的数据库字段的senderId，不允许手动更新或者插入
-    @Column(updatable = false, insertable = false)
+    @Column(nullable = false, updatable = false, insertable = false)
     private String senderId;
 
     //接受者
@@ -57,7 +57,7 @@ public class Message {
     @JoinColumn(name = "receiverId")
     private User receiver;
 
-    @Column(updatable = false, insertable = false)
+    @Column(nullable = false, updatable = false, insertable = false)
     private String receiverId;
 
     //定义创建时间戳，在创建的时候就写入
@@ -69,6 +69,14 @@ public class Message {
     @CreationTimestamp
     @Column(nullable = false)
     private LocalDateTime udateAt = LocalDateTime.now();
+
+    // 一个群可以接受多个消息
+    @ManyToOne
+    @JoinColumn(name = "groupId")
+    private Group group;
+
+    @Column(updatable = false, insertable = false)
+    private String groupId;
 
     public String getId() {
         return id;
@@ -148,5 +156,21 @@ public class Message {
 
     public void setUdateAt(LocalDateTime udateAt) {
         this.udateAt = udateAt;
+    }
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
+    }
+
+    public String getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
     }
 }
