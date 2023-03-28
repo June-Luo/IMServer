@@ -50,7 +50,7 @@ public class GroupMember {
     //定义更新时间戳，在创建的时候就写入
     @CreationTimestamp
     @Column(nullable = false)
-    private LocalDateTime udateAt = LocalDateTime.now();
+    private LocalDateTime updateAt = LocalDateTime.now();
 
 
     // 成员信息对应的用户信息
@@ -110,12 +110,12 @@ public class GroupMember {
         this.createAt = createAt;
     }
 
-    public LocalDateTime getUdateAt() {
-        return udateAt;
+    public LocalDateTime getUpdateAt() {
+        return updateAt;
     }
 
-    public void setUdateAt(LocalDateTime udateAt) {
-        this.udateAt = udateAt;
+    public void setUpdateAt(LocalDateTime updateAt) {
+        this.updateAt = updateAt;
     }
 
     public User getUser() {

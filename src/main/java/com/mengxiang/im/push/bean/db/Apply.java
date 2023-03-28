@@ -6,10 +6,16 @@ import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+/**
+ * 申请记录表
+ */
 @Entity
-@Table(name = "TB_Group")
+@Table(name = "TB_Apply")
 @SuppressWarnings("all")
-public class Group {
+public class Apply {
+
+    public static final int TYPE_ADD_USER = 1;//添加好友
+    public static final int TYPE_ADD_GROUP = 1;//添加群
 
     //主键
     @Id
@@ -22,21 +28,23 @@ public class Group {
     @Column(updatable = false, nullable = false)
     private String id;
 
-
-    // 群名称
-    @Column(nullable = false)
-    private String name;
-
-
-    // 群描述
+    //描述信息，申请信息中的描述
     @Column(nullable = false)
     private String description;
 
+    //附件：可以福袋图片地址或者其他
+    @Column(columnDefinition = "TEXT")
+    private String attach;
 
-    // 群头像
+    //当前申请的类型
     @Column(nullable = false)
-    private String picture;
+    private int type;
 
+    //目标ID，不建立主外键关系
+    //type - > TYPE_ADD_USER: User.id
+    //type -> TYPE_ADD_GROUP: Group.id
+    @Column(nullable = false)
+    private String targetId;
 
     //定义创建时间戳，在创建的时候就写入
     @CreationTimestamp
@@ -48,17 +56,13 @@ public class Group {
     @Column(nullable = false)
     private LocalDateTime updateAt = LocalDateTime.now();
 
-
-    // 一个人可以创建多个群
-    // 必须要有一个创建者，fetch加载方式为急加载
-    // 加载群信息的时候就必须加载owner信息
-    // cascade关联别为ALL，所有更改都将进行关系更新
-    @ManyToOne(optional = false, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "ownerId")
-    private User owner;
-
-    @Column(nullable = false, updatable = false, insertable = false)
-    private String ownerId;
+    //申请人，可以为空，为空时是系统信息
+    // 一个人可以有多个申请
+    @ManyToOne
+    @JoinColumn(name = "applicantId")
+    private User applicant;
+    @Column(updatable = false, insertable = false)
+    private String applicantId;
 
     public String getId() {
         return id;
@@ -66,14 +70,6 @@ public class Group {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getDescription() {
@@ -84,12 +80,28 @@ public class Group {
         this.description = description;
     }
 
-    public String getPicture() {
-        return picture;
+    public String getAttach() {
+        return attach;
     }
 
-    public void setPicture(String picture) {
-        this.picture = picture;
+    public void setAttach(String attach) {
+        this.attach = attach;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    public String getTargetId() {
+        return targetId;
+    }
+
+    public void setTargetId(String targetId) {
+        this.targetId = targetId;
     }
 
     public LocalDateTime getCreateAt() {
@@ -108,19 +120,20 @@ public class Group {
         this.updateAt = updateAt;
     }
 
-    public User getOwner() {
-        return owner;
+    public User getApplicant() {
+        return applicant;
     }
 
-    public void setOwner(User owner) {
-        this.owner = owner;
+    public void setApplicant(User applicant) {
+        this.applicant = applicant;
     }
 
-    public String getOwnerId() {
-        return ownerId;
+    public String getApplicantId() {
+        return applicantId;
     }
 
-    public void setOwnerId(String ownerId) {
-        this.ownerId = ownerId;
+    public void setApplicantId(String applicantId) {
+        this.applicantId = applicantId;
     }
 }
+

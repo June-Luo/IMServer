@@ -68,7 +68,7 @@ public class Message {
     //定义更新时间戳，在创建的时候就写入
     @CreationTimestamp
     @Column(nullable = false)
-    private LocalDateTime udateAt = LocalDateTime.now();
+    private LocalDateTime updateAt = LocalDateTime.now();
 
     // 一个群可以接受多个消息
     @ManyToOne
@@ -150,12 +150,12 @@ public class Message {
         this.createAt = createAt;
     }
 
-    public LocalDateTime getUdateAt() {
-        return udateAt;
+    public LocalDateTime getUpdateAt() {
+        return updateAt;
     }
 
-    public void setUdateAt(LocalDateTime udateAt) {
-        this.udateAt = udateAt;
+    public void setUpdateAt(LocalDateTime updateAt) {
+        this.updateAt = updateAt;
     }
 
     public Group getGroup() {
