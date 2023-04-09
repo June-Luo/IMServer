@@ -80,7 +80,7 @@ public class User {
     @LazyCollection(LazyCollectionOption.EXTRA)
     // 一对多，一个用户可以有很多关注人
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<UserFollow> myFollowUser = new HashSet<>();
+    private Set<UserFollow> following = new HashSet<>();
 
 
     // 关注我的人
@@ -199,12 +199,12 @@ public class User {
         this.lastReceivedAt = lastReceivedAt;
     }
 
-    public Set<UserFollow> getMyFollowUser() {
-        return myFollowUser;
+    public Set<UserFollow> getFollowing() {
+        return following;
     }
 
-    public void setMyFollowUser(Set<UserFollow> myFollowUser) {
-        this.myFollowUser = myFollowUser;
+    public void setFollowing(Set<UserFollow> following) {
+        this.following = following;
     }
 
     public Set<UserFollow> getFollowers() {
