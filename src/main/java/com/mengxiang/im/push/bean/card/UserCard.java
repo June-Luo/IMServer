@@ -1,13 +1,8 @@
 package com.mengxiang.im.push.bean.card;
 
 import com.google.gson.annotations.Expose;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.GenericGenerator;
+import com.mengxiang.im.push.bean.db.User;
 
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.PrimaryKeyJoinColumn;
 import java.time.LocalDateTime;
 
 public class UserCard {
@@ -31,10 +26,32 @@ public class UserCard {
     private int followers;
     //与当前User关系状态，是否已经关注这个人
     @Expose
-    private int isFollow;
+    private boolean isFollow;
     @Expose
     //用户信息的最后更新时间
     private LocalDateTime modifyAt = LocalDateTime.now();
+
+    public UserCard(final User user) {
+        this(user, false);
+    }
+
+    public UserCard(final User user, boolean isFollow) {
+        this.isFollow = isFollow;
+
+        this.id = user.getId();
+        this.name = user.getName();
+        this.phone = user.getPhone();
+        this.portrait = user.getPortrait();
+        this.desc = user.getDescription();
+        this.sex = user.getSex();
+        this.modifyAt = user.getUpdateAt();
+
+        // TODO 得到关注人和粉丝的数量
+        // user.getFollowers().size()
+        // 懒加载会报错，因为没有Session
+
+    }
+
 
 
     public String getId() {
@@ -101,11 +118,11 @@ public class UserCard {
         this.followers = followers;
     }
 
-    public int getIsFollow() {
+    public boolean getIsFollow() {
         return isFollow;
     }
 
-    public void setIsFollow(int isFollow) {
+    public void setIsFollow(boolean isFollow) {
         this.isFollow = isFollow;
     }
 

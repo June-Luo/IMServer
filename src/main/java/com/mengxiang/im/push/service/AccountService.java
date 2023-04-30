@@ -35,7 +35,7 @@ public class AccountService {
 
     @POST
     @Path("/register")
-    // 返回的相应体为JSON
+    // 返回的响应体为JSON
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public RegisterModel register(RegisterModel registerModel) {
