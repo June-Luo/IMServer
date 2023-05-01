@@ -1,18 +1,20 @@
 package com.mengxiang.im.push.factory;
 
 import com.mengxiang.im.push.bean.db.User;
+import com.mengxiang.im.push.bean.db.UserFollow;
 import com.mengxiang.im.push.utils.Hib;
 import com.mengxiang.im.push.utils.TextUtil;
 import org.hibernate.Session;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.util.UUID.*;
 
 /**
  * 该类提供一些查询接口
  */
-@SuppressWarnings("all")
 public class UserFactory {
     //根据token查找用户信息
     public static User findByToken(String token) {
@@ -34,6 +36,14 @@ public class UserFactory {
         return Hib.query(session -> (User) session
                 .createQuery("from User where name=:name")
                 .setParameter("name", name)
+                .uniqueResult());
+    }
+
+    // 通过Id找到User
+    public static User findById(String id) {
+        return Hib.query(session -> (User) session
+                .createQuery("from User where id=:id")
+                .setParameter("id", id)
                 .uniqueResult());
     }
 
@@ -144,5 +154,73 @@ public class UserFactory {
         //加盐再Base64
         password = TextUtil.getMD5(password);
         return TextUtil.encodeBase64(password);
+    }
+
+    //获取当前用户的联系人
+     public static List<User> getContacts(User self) {
+        return Hib.query(session -> {
+            //重新加载一次用户信息
+            session.load(self, self.getId());
+            //获取我关注的人
+            Set<UserFollow> following = self.getFollowing();
+            return following.stream()
+                    .map(UserFollow::getTarget).collect(Collectors.toList());
+        });
+     }
+
+    /**
+     * 关注人操作
+     * @param origin 发起者
+     * @param target 被关注人
+     * @param alias 备注名
+     * @return 被关注人信息
+     */
+    public static User follow(User origin, User target, String alias) {
+        //先去查看二者有没有相互关注，即在UserFollow表中有没有数据
+        UserFollow follow = getUserFollow(origin, target);
+
+        if(follow != null) {
+            //二者已经相互关注了
+            return follow.getTarget();
+        }
+
+        return Hib.query(session ->  {
+            //懒加载，重新加载一次数据
+            session.load(origin, origin.getId());
+            session.load(target, target.getId());
+
+            UserFollow originUserFollow = new UserFollow();
+
+            originUserFollow.setOrigin(origin);
+            originUserFollow.setTarget(target);
+            originUserFollow.setAlias(alias);
+
+            UserFollow targetFollow = new UserFollow();
+            targetFollow.setOrigin(origin);
+            targetFollow.setTarget(target);
+
+            //保存至数据库
+            session.save(originUserFollow);
+            session.save(targetFollow);
+
+            return target;
+
+
+        });
+    }
+
+
+    /**
+     * 查询两个人是否已经关注
+     * @param origin
+     * @param target
+     * @return
+     */
+    public static UserFollow getUserFollow(User origin, User target) {
+        return Hib.query(session ->
+            (UserFollow) session.createQuery("from UserFollow where originId=:originId and targetId=:targetId")
+                    .setParameter("originId", origin.getId())
+                    .setParameter("targetId", target.getId())
+                    .uniqueResult());
     }
 }

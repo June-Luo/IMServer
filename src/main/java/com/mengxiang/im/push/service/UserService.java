@@ -7,11 +7,11 @@ import com.mengxiang.im.push.bean.db.User;
 import com.mengxiang.im.push.factory.UserFactory;
 import com.oracle.deploy.update.UpdateInfo;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * 用户信息处理的Service
@@ -39,5 +39,52 @@ public class UserService extends BaseService{
         UserCard userCard = new UserCard(self,true);
 
         return ResponseModel.buildOk(userCard);
+    }
+
+    //获取联系人列表
+
+    @GET
+    @Path("/contact")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public ResponseModel<List<UserCard>> contacts() {
+        User self = getSelf();
+        //获取我的联系人
+        List<User> contacts = UserFactory.getContacts(self);
+        //user-->userCard
+        List<UserCard> userCards = contacts.stream().map(user -> new UserCard(user, true)).collect(Collectors.toList());
+        return ResponseModel.buildOk(userCards);
+    }
+
+    @PUT
+    @Path("/follow/{followId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public ResponseModel<UserCard> follow(@PathParam("followId") String followId) {
+        User self = getSelf();
+
+        if (followId.equalsIgnoreCase(self.getId())) {
+            //自己不能关注自己
+            return ResponseModel.buildParameterError();
+        }
+
+        //我关注的人
+        User followUser = UserFactory.findById(followId);
+        if (followUser == null) {
+            return ResponseModel.buildNotFoundUserError(null);
+        }
+
+        followUser = UserFactory.follow(self, followUser, null);
+
+        if (followUser == null) {
+            //服务器异常
+            return ResponseModel.buildServiceError();
+        }
+
+        //TODO:通知我关注的人我关注了它
+
+
+        //返回关注人信息
+        return ResponseModel.buildOk(new UserCard(followUser, true));
     }
 }
