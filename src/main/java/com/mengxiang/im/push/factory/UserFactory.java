@@ -189,15 +189,17 @@ public class UserFactory {
             session.load(origin, origin.getId());
             session.load(target, target.getId());
 
-            UserFollow originUserFollow = new UserFollow();
+            //双方互存联系人信息
 
+            UserFollow originUserFollow = new UserFollow();
             originUserFollow.setOrigin(origin);
             originUserFollow.setTarget(target);
             originUserFollow.setAlias(alias);
 
+
             UserFollow targetFollow = new UserFollow();
-            targetFollow.setOrigin(origin);
-            targetFollow.setTarget(target);
+            targetFollow.setOrigin(target);
+            targetFollow.setTarget(origin);
 
             //保存至数据库
             session.save(originUserFollow);
@@ -221,6 +223,25 @@ public class UserFactory {
             (UserFollow) session.createQuery("from UserFollow where originId=:originId and targetId=:targetId")
                     .setParameter("originId", origin.getId())
                     .setParameter("targetId", target.getId())
+                    .setMaxResults(1)
                     .uniqueResult());
+    }
+
+    /**
+     * 搜索联系人的实现
+     * @param name 查询的name，可以为空
+     * @return
+     */
+    public static List<User> search(String name) {
+        String searchName = TextUtil.isEmpty(name) ? "" : ("%" + name + "%");
+
+        return Hib.query(session ->  {
+            //进行查询，name忽略大小写，使用like进行模糊查询，头像和描述必须完善才能被查询到
+            List<User> userList = session.createQuery("from User where lower(name) like :name and portrait is not null and description is not null")
+                    .setParameter("name", searchName)
+                    .setMaxResults(20)
+                    .list();
+            return userList;
+        });
     }
 }

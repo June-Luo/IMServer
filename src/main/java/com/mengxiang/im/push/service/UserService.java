@@ -4,13 +4,13 @@ import com.mengxiang.im.push.bean.api.base.ResponseModel;
 import com.mengxiang.im.push.bean.api.user.UpdateInfoModel;
 import com.mengxiang.im.push.bean.card.UserCard;
 import com.mengxiang.im.push.bean.db.User;
+import com.mengxiang.im.push.bean.db.UserFollow;
 import com.mengxiang.im.push.factory.UserFactory;
-import com.oracle.deploy.update.UpdateInfo;
+import com.mengxiang.im.push.utils.TextUtil;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -42,7 +42,6 @@ public class UserService extends BaseService{
     }
 
     //获取联系人列表
-
     @GET
     @Path("/contact")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -56,6 +55,7 @@ public class UserService extends BaseService{
         return ResponseModel.buildOk(userCards);
     }
 
+    //简化为双方同时关注
     @PUT
     @Path("/follow/{followId}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -84,7 +84,64 @@ public class UserService extends BaseService{
         //TODO:通知我关注的人我关注了它
 
 
+
         //返回关注人信息
         return ResponseModel.buildOk(new UserCard(followUser, true));
     }
+
+
+    // 获取某人的信息
+    @GET
+    @Path("{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public ResponseModel<UserCard> getUser(@PathParam("id") String id) {
+        if (TextUtil.isEmpty(id)) {
+            return ResponseModel.buildParameterError();
+        }
+
+        User self = getSelf();
+
+        if (id.equals(self.getId())) {
+            return ResponseModel.buildOk(new UserCard(self,true));
+        }
+
+        User user = UserFactory.findById(id);
+        if (user == null) {
+            return ResponseModel.buildNotFoundUserError(null);
+        }
+
+        UserFollow follow = UserFactory.getUserFollow(self, user);
+        boolean isFollow = (follow != null);
+
+        return ResponseModel.buildOk(new UserCard(user, isFollow));
+    }
+
+
+    //搜索人接口实现 ，只是去查询，每次只返回20条数据
+    @GET
+    @Path("/search/{name:(.*)?}") //名字为任意字符，可以为空
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public ResponseModel<List<UserCard>> search(@DefaultValue("") @PathParam("name") String name) {
+        User self = getSelf();
+
+        //查询
+        List<User> userList = UserFactory.search(name);
+
+        //我的联系人
+        List<User> contacts = UserFactory.getContacts(self);
+
+        List<UserCard> userCards = userList.stream().map(user -> {
+            //判断这个人是否是我自己，或者是在我联系人
+            boolean isFollow = user.getId().equalsIgnoreCase(
+                    self.getId()) ||
+                    contacts.stream().anyMatch(contactUser -> contactUser.getId().equalsIgnoreCase(contactUser.getId()));
+
+            return new UserCard(user,isFollow);
+        }).collect(Collectors.toList());
+
+        return ResponseModel.buildOk(userCards);
+    }
+
 }
