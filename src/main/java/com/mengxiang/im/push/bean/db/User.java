@@ -34,7 +34,7 @@ public class User {
     @Column(nullable = false, length = 128, unique = true)
     private String name;
 
-    //电话唯一
+    //电话唯一，非空
     @Column(nullable = false, length = 64, unique = true)
     private String phone;
 
