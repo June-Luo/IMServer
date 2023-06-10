@@ -15,11 +15,11 @@ public class AccountService {
 //    /**
 //     *Get 请求实际地址(127.0.0.1/api/account/login)
 //     */
-//    @GET
-//    @Path("/login")
-//    public String get(){
-//        return "get login";
-//    }
+    @GET
+    @Path("/login")
+    public String get(){
+        return "get login";
+    }
 //
 //    //POST 127.0.0.1/api/account/login
 //    @POST

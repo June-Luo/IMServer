@@ -1,5 +1,6 @@
 package com.mengxiang.im.push.bean.db;
 
+import com.mengxiang.im.push.bean.api.messsage.MessageCreateModel;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -17,6 +18,9 @@ public class Message {
     public static final int TYPE_FILE = 3;//文件
     public static final int TYPE_AUDIO = 4;//语音
 
+    // 定义发送的类别，发送给人还是发送给群
+    public static final int RECEIVER_TYPE_NONE = 1;//人
+    public static final int RECEIVER_TYPE_GROUP = 2;//群
 
     //主键
     @Id
@@ -78,6 +82,31 @@ public class Message {
     @Column(updatable = false, insertable = false)
     private String groupId;
 
+    public Message() {
+
+    }
+
+    // 发送给朋友的构造函数
+    public Message(User sender, User receiver, MessageCreateModel model) {
+        this.id = model.getId();
+        this.content = model.getContent();
+        this.attach = model.getAttach();
+        this.type = model.getType();
+
+        this.sender = sender;
+        this.receiver = receiver;
+    }
+
+    // 发送给群的构造函数
+    public Message(User sender, Group group, MessageCreateModel model) {
+        this.id = model.getId();
+        this.content = model.getContent();
+        this.attach = model.getAttach();
+        this.type = model.getType();
+
+        this.sender = sender;
+        this.group = group;
+    }
     public String getId() {
         return id;
     }

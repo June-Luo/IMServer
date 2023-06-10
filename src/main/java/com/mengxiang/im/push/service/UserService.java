@@ -1,11 +1,13 @@
 package com.mengxiang.im.push.service;
 
+import com.mengxiang.im.push.bean.api.base.PushModel;
 import com.mengxiang.im.push.bean.api.base.ResponseModel;
 import com.mengxiang.im.push.bean.api.user.UpdateInfoModel;
 import com.mengxiang.im.push.bean.card.UserCard;
 import com.mengxiang.im.push.bean.db.User;
 import com.mengxiang.im.push.bean.db.UserFollow;
 import com.mengxiang.im.push.factory.UserFactory;
+import com.mengxiang.im.push.utils.PushDispatcher;
 import com.mengxiang.im.push.utils.TextUtil;
 
 import javax.ws.rs.*;
@@ -48,6 +50,15 @@ public class UserService extends BaseService{
     @Produces(MediaType.APPLICATION_JSON)
     public ResponseModel<List<UserCard>> contacts() {
         User self = getSelf();
+
+        //这几行代码解注释后用于测试个推
+//        PushModel model = new PushModel(); //用来装要推送的消息
+//        model.add(new PushModel.Entity(0,"Hello!,Getui"));
+//        PushDispatcher dispatcher = new PushDispatcher();
+//        dispatcher.add(self,model);
+//        dispatcher.submit();
+
+
         //获取我的联系人
         List<User> contacts = UserFactory.getContacts(self);
         //user-->userCard
